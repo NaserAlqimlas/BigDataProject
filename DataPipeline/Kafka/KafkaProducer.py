@@ -34,4 +34,4 @@ if __name__ == '__main__':
 	
 	
 	stream = Stream(auth, l)
-	stream.filter(locations=[-180,-90,180,90],languages=['en'])
+	stream.filter(locations=[-125.8,25.6,-66.3,49.0])

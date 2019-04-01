@@ -11,11 +11,10 @@ consumer = KafkaConsumer(
      enable_auto_commit=True,
      group_id='my-group')
 
-client = MongoClient("mongodb+srv://username:password@tweets-deync.gcp.mongodb.net/test?retryWrites=true")
-collection = client.RawTweets.tweets
-
+client = MongoClient("mongodb+srv://kylesch:bigdata@tweets-deync.gcp.mongodb.net/test?retryWrites=true")
+collection = client.tweetsv3.tweet
 for message in consumer:
-    message = message.value
-    tweet = json.loads(message)
-    collection.insert_one(tweet)
-    print('{} added to {}'.format(message, collection))
+	message = message.value
+	tweet = json.loads(message)
+	collection.insert_one(tweet)
+	print('{} added to {}'.format(message, collection))
