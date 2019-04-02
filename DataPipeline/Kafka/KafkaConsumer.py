@@ -11,8 +11,9 @@ consumer = KafkaConsumer(
      enable_auto_commit=True,
      group_id='my-group')
 
-client = MongoClient("mongodb+srv://kylesch:bigdata@tweets-deync.gcp.mongodb.net/test?retryWrites=true")
-collection = client.tweetsv3.tweet
+#add tweets from US to mongoDB server on GCP
+client = MongoClient("10.128.0.3",27017)
+collection = client.tweets.tweet
 for message in consumer:
 	message = message.value
 	tweet = json.loads(message)
