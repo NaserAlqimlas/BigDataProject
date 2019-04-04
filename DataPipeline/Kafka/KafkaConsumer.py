@@ -12,7 +12,7 @@ consumer = KafkaConsumer(
      group_id='my-group')
 
 #add tweets from US to mongoDB server on GCP
-client = MongoClient("10.128.0.3",27017)
+client = MongoClient("mongodb://104.197.54.204",27017)
 collection = client.tweets.tweet
 for message in consumer:
 	message = message.value
