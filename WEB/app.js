@@ -1,20 +1,24 @@
-const express = require('express')
-const app = express()
-const bodyParser = require('body-parser')
-const mongoose = require('mongoose')
-const config = require('./config')
-const Usa = require('./model/america')
-const port = config.app.port
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const config = require("./config");
+const Usa = require("./model/america");
+const port = config.app.port;
 
-mongoose.connect(config.db.mongodb, {
-  useNewUrlParser: true
-}, (error) => {
-  if(error){
-    console.log(error)
-  }else{
-    console.log(`Connect to database`)
+mongoose.connect(
+  config.db.mongodb,
+  {
+    useNewUrlParser: true
+  },
+  error => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(`Connect to database`);
+    }
   }
-})
+);
 
 // usa.create({
 //   AL: 1,
@@ -84,11 +88,10 @@ mongoose.connect(config.db.mongodb, {
 //   }
 // })
 
-app.get('/bigdata', (req, res) => {
-  Usa.find({}).then((users) => {
-    res.send(users)
-  })
-})
+app.get("/bigdata", (req, res) => {
+  Usa.find({}).then(users => {
+    res.send(users);
+  });
+});
 
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
