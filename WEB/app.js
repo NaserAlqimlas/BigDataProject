@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const config = require("./config");
 const Usa = require("./model/america");
+const path = require("path");
 const port = config.app.port;
 
 mongoose.connect(
@@ -87,6 +88,10 @@ mongoose.connect(
 //     return data
 //   }
 // })
+
+app.get("/", function(req, res) {
+  res.sendFile(path.join(__dirname + "/usa/index.html"));
+});
 
 app.get("/bigdata", (req, res) => {
   Usa.find({}).then(users => {
