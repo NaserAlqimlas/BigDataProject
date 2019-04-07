@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const config = require("./config");
+const d3 = require("d3");
 const Usa = require("./model/america");
 const path = require("path");
 const port = config.app.port;
@@ -89,7 +90,7 @@ mongoose.connect(
 //   }
 // })
 
-app.get("/", function(req, res) {
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname + "/usa/index.html"));
 });
 
