@@ -94,6 +94,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname + "/usa/index.html"));
 });
 
+app.get("/choropleth", (req, res) => {
+  res.sendFile(path.join(__dirname + "/usa/choropleth.html"));
+});
+
+app.get("/us-states", (req, res) => {
+  res.sendFile(path.join(__dirname + "/usa/us-states.json"));
+});
+
 app.get("/bigdata", (req, res) => {
   Usa.find({}).then(users => {
     res.send(users);
