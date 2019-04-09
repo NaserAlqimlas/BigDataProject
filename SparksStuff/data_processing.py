@@ -20,39 +20,42 @@ my_spark = SparkSession \
 
 if __name__ == "__main__":
 
-	#spark = SparkSession.builder.appName("test").getOrCreate()
+    #spark = SparkSession.builder.appName("test").getOrCreate()
 
-	df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-	# df.show()
-	#df.collect()
-	# rx = ".*"+keyword+".*"
-	#text = df.text
+    df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
+    # df.show()
+    #df.collect()
+    # rx = ".*"+keyword+".*"
+    #text = df.text
 
-	#lower case all tweets
-	unionDF = df.select(df.text, df.place)
-	unionDF = unionDF.withColumn('text', lower(col('text')));
-	explode_DF = unionDF.withColumn('place', explode('full_name'))
-	#get keyword
-	#trump: 1938
-	keyword = "trump"
-	tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
-	# tweets_with_words = unionDF.filter(unionDF.text == keyword)
+    #lower case all tweets
+    unionDF = df.select(df.text, df.place)
+    unionDF = unionDF.withColumn('text', lower(col('text')));
+    # explode_DF = unionDF.withColumn('full_name', explode('full_name'))
+    #get keyword
+    #trump: 1938
+    keyword = "trump"
+    tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
+    df2 = tweets_with_words.select('text', "place.*")
+    df2.printSchema()
+    # tweets_with_words = unionDF.filter(unionDF.text == keyword)
 
-	count = tweets_with_words.count()
-	# Tokens = unionDF.select("trump").collect();
-	# tweets_with_words = unionDF.filter(unionDF.text[keyword])
-	
-	#new_rdd = rdd.filter(lambda x: x in Tokens)
-	'''
-	full_name = "county, State"
-	'''
+    count = tweets_with_words.count()
+    # Tokens = unionDF.select("trump").collect();
+    # tweets_with_words = unionDF.filter(unionDF.text[keyword])
+    
+    #new_rdd = rdd.filter(lambda x: x in Tokens)
+    '''
+    full_name = "county, State"
+    '''
 
-	print(count)
-	print(explode_DF.head(2))
-	tweets_with_words.select("text").show(10)
-	print(tweets_with_words.head(10))
+    print(count)
+    print(unionDF.head(2))
+    print(tweets_with_words.head(2))
+    tweets_with_words.select("text").show(10)
+    # print(tweets_with_words.head(10))
 
-	states = {
+    states = {
         'AK': 0,
         'AL': 0,
         'AR': 0,
@@ -104,12 +107,66 @@ if __name__ == "__main__":
         'WI': 0,
         'WV': 0,
         'WY': 0
-	}
+    }
 
+    us_state_abbrev = {
+    'Alabama': 'AL',
+    'Alaska': 'AK',
+    'Arizona': 'AZ',
+    'Arkansas': 'AR',
+    'California': 'CA',
+    'Colorado': 'CO',
+    'Connecticut': 'CT',
+    'Delaware': 'DE',
+    'Florida': 'FL',
+    'Georgia': 'GA',
+    'Hawaii': 'HI',
+    'Idaho': 'ID',
+    'Illinois': 'IL',
+    'Indiana': 'IN',
+    'Iowa': 'IA',
+    'Kansas': 'KS',
+    'Kentucky': 'KY',
+    'Louisiana': 'LA',
+    'Maine': 'ME',
+    'Maryland': 'MD',
+    'Massachusetts': 'MA',
+    'Michigan': 'MI',
+    'Minnesota': 'MN',
+    'Mississippi': 'MS',
+    'Missouri': 'MO',
+    'Montana': 'MT',
+    'Nebraska': 'NE',
+    'Nevada': 'NV',
+    'New Hampshire': 'NH',
+    'New Jersey': 'NJ',
+    'New Mexico': 'NM',
+    'New York': 'NY',
+    'North Carolina': 'NC',
+    'North Dakota': 'ND',
+    'Ohio': 'OH',
+    'Oklahoma': 'OK',
+    'Oregon': 'OR',
+    'Pennsylvania': 'PA',
+    'Rhode Island': 'RI',
+    'South Carolina': 'SC',
+    'South Dakota': 'SD',
+    'Tennessee': 'TN',
+    'Texas': 'TX',
+    'Utah': 'UT',
+    'Vermont': 'VT',
+    'Virginia': 'VA',
+    'Washington': 'WA',
+    'West Virginia': 'WV',
+    'Wisconsin': 'WI',
+    'Wyoming': 'WY',
+}
 
-	# unionDF.show()
+    places = df2.select("full_name").collect()
 
-	# print(unionDF.head(100))
+    #print(len(places))
+    for i in places:
+        print(i)
 
 
 
