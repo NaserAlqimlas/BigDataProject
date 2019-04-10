@@ -7,6 +7,7 @@ from pyspark.sql.functions import lower, col
 from pyspark import SparkContext
 import pyspark.sql 
 from pyspark.sql.functions import explode
+import sys
 
 
 my_spark = SparkSession \
@@ -37,10 +38,10 @@ if __name__ == "__main__":
     keyword = "trump"
     tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
     df2 = tweets_with_words.select('text', "place.*")
-    df2.printSchema()
+    #df2.printSchema()
     # tweets_with_words = unionDF.filter(unionDF.text == keyword)
 
-    count = tweets_with_words.count()
+    #count = tweets_with_words.count()
     # Tokens = unionDF.select("trump").collect();
     # tweets_with_words = unionDF.filter(unionDF.text[keyword])
     
@@ -49,10 +50,10 @@ if __name__ == "__main__":
     full_name = "county, State"
     '''
 
-    print(count)
-    print(unionDF.head(2))
-    print(tweets_with_words.head(2))
-    tweets_with_words.select("text").show(10)
+    #print(count)
+    #print(unionDF.head(2))
+    #print(tweets_with_words.head(2))
+    #tweets_with_words.select("text").show(10)
     # print(tweets_with_words.head(10))
 
     states = {
@@ -131,7 +132,7 @@ if __name__ == "__main__":
     'Maine': 'ME',
     'Maryland': 'MD',
     'Massachusetts': 'MA',
-    'Michigan': 'MI',
+    'Michigan': 'MI', #['Michigan', ' USA']
     'Minnesota': 'MN',
     'Mississippi': 'MS',
     'Missouri': 'MO',
@@ -163,10 +164,46 @@ if __name__ == "__main__":
 }
 
     places = df2.select("full_name").collect()
-
     #print(len(places))
-    for i in places:
-        print(i)
+    l = []
+    for i in range(len(places)):
+        l.append(places[i].__getitem__("full_name"))
+
+
+    state = us_state_abbrev.keys()
+    abbr = states.keys()
+
+    for i in l:
+        l2 = i.split(',')
+        if len(l2) == 1 or len(l2) > 2:
+            continue
+        l2[0] = l2[0].replace(" ", "")
+        l2[1] = l2[1].replace(" ", "")
+        if(l2[1] == 'USA'):
+            if(l2[0] in state):
+                a = us_state_abbrev[l2[0]]
+                states[a] += 1
+            else:
+                continue
+        else:
+            if(l2[1] in abbr):
+                states[l2[1]] += 1
+            else:
+                continue
+
+    states['word'] = keyword
+    client = pymongo.MongoClient("mongodb://104.197.54.204",27017)
+    db = client["tweets"]
+    coll = db['words']
+    coll.insert_one(states)
+    #print(states)
+
+        
+
+
+
+
+
 
 
 
