@@ -13,7 +13,7 @@ import sys
 conf = pyspark.SparkConf()
 #conf.setMaster("spark://35.233.240.80:8088")
 conf.set("spark.mongodb.input.uri", "mongodb://104.197.54.204/tweets.tweet")
-conf.set("spark.mongodb.output.uri", "mongodb://104.197.54.204/tweets.words")
+conf.set("spark.mongodb.output.uri", "mongodb://104.197.54.204/tweets.locations")
 conf.set("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.11:2.3.2")
 sc = pyspark.SparkContext(conf=conf)
 my_spark = SparkSession(sc)
@@ -39,14 +39,14 @@ if __name__ == "__main__":
     #text = df.text
 
     #lower case all tweets
-    unionDF = df.select(df.text, df.place)
-    unionDF = unionDF.withColumn('text', lower(col('text')));
+    unionDF = df.select(df.place)
+    #unionDF = unionDF.withColumn('text', lower(col('text')));
     # explode_DF = unionDF.withColumn('full_name', explode('full_name'))
     #get keyword
     #trump: 1938
-    keyword = "trump"
-    tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
-    df2 = tweets_with_words.select('text', "place.*")
+    #keyword = "trump"
+    #tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
+    df2 = unionDF.select("place.*")
     #df2.printSchema()
     # tweets_with_words = unionDF.filter(unionDF.text == keyword)
 
@@ -172,7 +172,7 @@ if __name__ == "__main__":
 }
 
     places = df2.select("full_name").collect()
-    #print(len(places))
+    print(len(places))
     l = []
     for i in range(len(places)):
         l.append(places[i].__getitem__("full_name"))
@@ -182,6 +182,8 @@ if __name__ == "__main__":
     abbr = states.keys()
 
     for i in l:
+        if(i == None):
+            continue
         l2 = i.split(',')
         if len(l2) == 1 or len(l2) > 2:
             continue
@@ -199,21 +201,8 @@ if __name__ == "__main__":
             else:
                 continue
 
-    states['word'] = keyword
     client = pymongo.MongoClient("mongodb://104.197.54.204",27017)
     db = client["tweets"]
-    coll = db['words']
-    coll.update_one({'word': keyword}, {"$set": states}, upsert=True)
+    coll = db['locations']
+    coll.insert_one(states)
     #print(states)
-
-        
-
-
-
-
-
-
-
-
-
-
