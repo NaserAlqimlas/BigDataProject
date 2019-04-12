@@ -45,7 +45,7 @@ if __name__ == "__main__":
     # explode_DF = unionDF.withColumn('full_name', explode('full_name'))
     #get keyword
     #trump: 1938
-    keyword = sys.argv[1]
+    keyword = lower(sys.argv[1])
     tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
     df2 = tweets_with_words.select('text', "place.*")
     #df2.printSchema()
