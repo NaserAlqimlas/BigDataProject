@@ -11,12 +11,13 @@ import sys
 
 
 conf = pyspark.SparkConf()
-#conf.setMaster("spark://35.233.240.80:8088")
+#conf.setMaster("spark://104.198.99.155.80:7077")
 conf.set("spark.mongodb.input.uri", "mongodb://104.197.54.204/tweets.tweet")
 conf.set("spark.mongodb.output.uri", "mongodb://104.197.54.204/tweets.words")
 conf.set("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.11:2.3.2")
 sc = pyspark.SparkContext(conf=conf)
 my_spark = SparkSession(sc)
+
 '''
 my_spark = SparkSession \
     .builder \
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     # explode_DF = unionDF.withColumn('full_name', explode('full_name'))
     #get keyword
     #trump: 1938
-    keyword = "trump"
+    keyword = sys.argv[1]
     tweets_with_words = unionDF[unionDF['text'].contains(keyword)]
     df2 = tweets_with_words.select('text', "place.*")
     #df2.printSchema()
@@ -182,6 +183,8 @@ if __name__ == "__main__":
     abbr = states.keys()
 
     for i in l:
+        if(i == None):
+            continue
         l2 = i.split(',')
         if len(l2) == 1 or len(l2) > 2:
             continue
