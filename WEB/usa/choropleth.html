@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Team A Project</title>
     <style>
       .states {
         fill: #e3e3e3;
@@ -13,110 +14,128 @@
         stroke-linecap: round;
         pointer-events: none;
       }
+      .map {
+        text-align: center;
+        background-color: #1c2938;
+      }
+      .header {
+        text-align: center;
+        font-family: Arial;
+        color: rgb(240, 248, 255);
+      }
     </style>
   </head>
-  <body>
-    <svg width="960" height="600"></svg>
+  <body class="map">
+    <h1 class="header">Team A Project</h1>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
-    <script>
-      var margin = { top: 0, left: 0, right: 0, bottom: 0 },
-        height = 600 - margin.top - margin.bottom,
-        width = 960 - margin.left - margin.right;
+    <div>
+      <script>
+        var margin = { top: 0, left: 0, right: 0, bottom: 0 },
+          height = 600 - margin.top - margin.bottom,
+          width = 960 - margin.left - margin.right;
 
-      var svg = d3
-        .select("body")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        var svg = d3
+          .select("body")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
 
-      var projection = d3.geoAlbersUsa();
-      //.translate([width / 2, height / 2])
-      //.scale(500);
+        var projection = d3.geoAlbersUsa();
+        //.translate([width / 2, height / 2])
+        //.scale(500);
 
-      var path = d3.geoPath().projection(projection);
+        var path = d3.geoPath().projection(projection);
 
-      var color = d3
-        .scaleQuantize()
-        .range([
-          "rgb(237,248,233)",
-          "rgb(186,228,179)",
-          "rgb(116,196,118)",
-          "rgb(49,163,84)",
-          "rgb(0,109,44)"
-        ]);
+        var color = d3
+          .scaleQuantize()
+          .range([
+            "rgb(240,248,255)",
+            "rgb(173,216,230)",
+            "rgb(135,206,235)",
+            "rgb(0,191,255)",
+            "rgb(30,144,255)"
+          ]);
+        // .range([
+        //   "rgb(237,248,233)",
+        //   "rgb(186,228,179)",
+        //   "rgb(116,196,118)",
+        //   "rgb(49,163,84)",
+        //   "rgb(0,109,44)"
+        // ]);
 
-      // d3.queue()
-      //   .defer(d3.json, "us-states")
-      //   .defer(d3.json, "/bigdata")
-      //   .await(ready);
+        // d3.queue()
+        //   .defer(d3.json, "us-states")
+        //   .defer(d3.json, "/bigdata")
+        //   .await(ready);
 
-      d3.json("/bigdata", function(data) {
-        //Set input domain for color scale
-        max = 0;
-        min = Infinity;
+        d3.json("/bigdata", function(data) {
+          //Set input domain for color scale
+          max = 0;
+          min = Infinity;
 
-        for (i in data[0]) {
-          tmp = data[0][i];
-          if (data[0][i] < min) {
-            min = data[0][i];
-          }
-          if (data[0][i] > max) {
-            max = data[0][i];
-          }
-        }
-
-        color.domain([min, max]);
-
-        //Load in GeoJSON data
-        d3.json("us-states", function(json) {
-          //Merge the ag. data and GeoJSON
-          //Loop through once for each ag. data value
           for (i in data[0]) {
-            // //Grab state name
-            // var dataState = data[i].state;
-            //
-            // //Grab data value, and convert from string to float
-            // var dataValue = parseFloat(data[i].value);
-
-            var dataState = i;
-            var dataValue = parseFloat(data[0][i]);
-
-            //Find the corresponding state inside the GeoJSON
-            for (var j = 0; j < json.features.length; j++) {
-              var jsonState = json.features[j].id;
-
-              if (dataState == jsonState) {
-                //Copy the data value into the JSON
-                json.features[j].properties.value = dataValue;
-
-                //Stop looking through the JSON
-                break;
-              }
+            tmp = data[0][i];
+            if (data[0][i] < min) {
+              min = data[0][i];
+            }
+            if (data[0][i] > max) {
+              max = data[0][i];
             }
           }
 
-          //Bind data and create one path per GeoJSON feature
-          svg
-            .selectAll("path")
-            .data(json.features)
-            .enter()
-            .append("path")
-            .attr("d", path)
-            .style("fill", function(d) {
-              //Get data value
-              var value = d.properties.value;
+          color.domain([min, max]);
 
-              if (value) {
-                //If value exists…
-                return color(value);
-              } else {
-                //If value is undefined…
-                return "#ccc";
+          //Load in GeoJSON data
+          d3.json("us-states", function(json) {
+            //Merge the ag. data and GeoJSON
+            //Loop through once for each ag. data value
+            for (i in data[0]) {
+              // //Grab state name
+              // var dataState = data[i].state;
+              //
+              // //Grab data value, and convert from string to float
+              // var dataValue = parseFloat(data[i].value);
+
+              var dataState = i;
+              var dataValue = parseFloat(data[0][i]);
+
+              //Find the corresponding state inside the GeoJSON
+              for (var j = 0; j < json.features.length; j++) {
+                var jsonState = json.features[j].id;
+
+                if (dataState == jsonState) {
+                  //Copy the data value into the JSON
+                  json.features[j].properties.value = dataValue;
+
+                  //Stop looking through the JSON
+                  break;
+                }
               }
-            });
+            }
+
+            //Bind data and create one path per GeoJSON feature
+            svg
+              .selectAll("path")
+              .data(json.features)
+              .enter()
+              .append("path")
+              .attr("d", path)
+              .style("fill", function(d) {
+                //Get data value
+                var value = d.properties.value;
+
+                if (value) {
+                  //If value exists…
+                  return color(value);
+                } else {
+                  //If value is undefined…
+                  return "#ccc";
+                }
+              });
+          });
         });
-      });
-    </script>
+      </script>
+    </div>
   </body>
 </html>
