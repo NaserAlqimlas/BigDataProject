@@ -23,10 +23,28 @@
         font-family: Arial;
         color: rgb(240, 248, 255);
       }
+      .search {
+        padding: 6px;
+        border: none;
+        margin-top: 8px;
+        margin-right: 16px;
+        font-size: 17px;
+        font-family: Arial;
+      }
+      .search .search-container button:hover {
+        background: #ccc;
+      }
     </style>
   </head>
   <body class="map">
     <h1 class="header">Team A Project</h1>
+    <div class="search">
+      <form action="/keyword-route" method="post">
+        <input type="text" id="keyword" placeholder="Search Keywords..." />
+        <button type="submit">Send</button>
+        <!-- This doesn nothing for now -->
+      </form>
+    </div>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <div>
@@ -48,27 +66,13 @@
         var path = d3.geoPath().projection(projection);
 
         var color = d3
-          .scaleQuantize()
-          .range([
-            "rgb(240,248,255)",
-            "rgb(173,216,230)",
-            "rgb(135,206,235)",
-            "rgb(0,191,255)",
-            "rgb(30,144,255)"
-          ]);
-        // .range([
-        //   "rgb(237,248,233)",
-        //   "rgb(186,228,179)",
-        //   "rgb(116,196,118)",
-        //   "rgb(49,163,84)",
-        //   "rgb(0,109,44)"
-        // ]);
+          .scaleLinear()
+          .domain([0, 50])
+          .range(["white", "#1DA1F1"]) //go from white to twitter logo color
+          .interpolate(d3.interpolateHcl);
+        //sets colors such that white is the assigned to the lowest values and blue is assigned to the higher values with everything in between being assigned to everything in between.
 
-        // d3.queue()
-        //   .defer(d3.json, "us-states")
-        //   .defer(d3.json, "/bigdata")
-        //   .await(ready);
-
+        //create map and project data
         d3.json("/bigdata", function(data) {
           //Set input domain for color scale
           max = 0;
