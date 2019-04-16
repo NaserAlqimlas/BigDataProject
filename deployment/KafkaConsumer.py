@@ -4,9 +4,9 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import ast
 import json
-import pymongo_spark
+#import pymongo_spark
 # Important: activate pymongo_spark.
-pymongo_spark.activate()
+#pymongo_spark.activate()
 
 brokers, topic = 'localhost:9092', 'test'
 print("**************************************")
