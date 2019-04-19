@@ -39,8 +39,8 @@
   <body class="map">
     <h1 class="header">Team A Project</h1>
     <div class="search">
-      <form action="/keyword-route" method="post">
-        <input type="text" id="keyword" placeholder="Search Keywords..." />
+      <form action="http://localhost:3000/choropleth" method="POST">
+        <input type="text" placeholder="Search Keywords..." name = "keyword" />
         <button type="submit">Send</button>
         <!-- This doesn nothing for now -->
       </form>
@@ -74,6 +74,7 @@
 
         //create map and project data
         d3.json("/bigdata", function(data) {
+          console.log(data)
           //Set input domain for color scale
           max = 0;
           min = Infinity;
@@ -82,12 +83,15 @@
             tmp = data[0][i];
             if (data[0][i] < min) {
               min = data[0][i];
+
             }
             if (data[0][i] > max) {
               max = data[0][i];
             }
           }
 
+console.log("min " + min)
+console.log("max " + max)
           color.domain([min, max]);
 
           //Load in GeoJSON data
