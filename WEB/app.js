@@ -25,10 +25,11 @@ mongoose.connect(
     if (error) {
       console.log(error);
     } else {
-      console.log(`Connected to database`);
+      console.log(`Connect to database`);
     }
   }
 );
+
 function create(){
 Usa.create({
   AL: 1,
@@ -48,7 +49,7 @@ Usa.create({
   IA: 0,
   KS: 1,
   KY: 1,
-  LA: 100,
+  LA: 1000000,
   ME: 2,
   MD: 4,
   MA: 12,
@@ -132,15 +133,14 @@ app.get("/bigdata", (req, res) => {
   });
 });
 // Trying to get keyword from search bar
-app.post("/keyword-route", (req, res) => {
-  if (typeof req.body.keyword === "undefined") {
-    res.status(400).json({ error: "missing parameter keyword", data: null });
-    return;
-  }
-
-  let keyword = req.body.keyword;
-  console.log(keyword);
-  res.status(200).json({ error: null, data: bar });
-});
+// app.post("/keyword-route", (req, res) => {
+//   if (typeof req.body.keyword === "undefined") {
+//     res.status(400).json({ error: "missing parameter keyword", data: null });
+//     return;
+//   }
+//
+//   let keyword = req.body.keyword;
+//   res.status(200).json({ error: null, data: bar });
+// });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
