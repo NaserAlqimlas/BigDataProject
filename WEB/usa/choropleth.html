@@ -39,10 +39,15 @@
   <body class="map">
     <h1 class="header">Team A Project</h1>
     <div class="search">
+<<<<<<< HEAD
       <form action="http://localhost:3000/choropleth" method="POST">
         <input type="text" placeholder="Search Keywords..." name = "keyword" />
-        <button type="submit">Send</button>
+=======
+      <form action="/keyword-route" method="post">
         <!-- This doesn nothing for now -->
+        <input type="text" id="keyword" placeholder="Search Keywords..." />
+>>>>>>> f04f99f31048f00237b94084e155110c3ae403bc
+        <button type="submit">Send</button>
       </form>
     </div>
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -60,14 +65,16 @@
           .attr("height", height);
 
         var projection = d3.geoAlbersUsa();
-        //.translate([width / 2, height / 2])
-        //.scale(500);
 
         var path = d3.geoPath().projection(projection);
 
+        var legend = d3
+          .scaleLinear()
+          .domain([1, 10])
+          .rangeRound([600, 860]);
+
         var color = d3
           .scaleLinear()
-          .domain([0, 50])
           .range(["white", "#1DA1F1"]) //go from white to twitter logo color
           .interpolate(d3.interpolateHcl);
         //sets colors such that white is the assigned to the lowest values and blue is assigned to the higher values with everything in between being assigned to everything in between.
@@ -76,6 +83,7 @@
         d3.json("/bigdata", function(data) {
           console.log(data)
           //Set input domain for color scale
+          console.log("data: ", data);
           max = 0;
           min = Infinity;
 
@@ -90,8 +98,6 @@
             }
           }
 
-console.log("min " + min)
-console.log("max " + max)
           color.domain([min, max]);
 
           //Load in GeoJSON data
@@ -138,7 +144,7 @@ console.log("max " + max)
                   return color(value);
                 } else {
                   //If value is undefined…
-                  return "#ccc";
+                  return "white";
                 }
               });
           });

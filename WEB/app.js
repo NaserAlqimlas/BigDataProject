@@ -25,7 +25,7 @@ mongoose.connect(
     if (error) {
       console.log(error);
     } else {
-      console.log(`Connect to database`);
+      console.log(`Connected to database`);
     }
   }
 );
@@ -132,14 +132,15 @@ app.get("/bigdata", (req, res) => {
   });
 });
 // Trying to get keyword from search bar
-// app.post("/keyword-route", (req, res) => {
-//   if (typeof req.body.keyword === "undefined") {
-//     res.status(400).json({ error: "missing parameter keyword", data: null });
-//     return;
-//   }
-//
-//   let keyword = req.body.keyword;
-//   res.status(200).json({ error: null, data: bar });
-// });
+app.post("/keyword-route", (req, res) => {
+  if (typeof req.body.keyword === "undefined") {
+    res.status(400).json({ error: "missing parameter keyword", data: null });
+    return;
+  }
+
+  let keyword = req.body.keyword;
+  console.log(keyword);
+  res.status(200).json({ error: null, data: bar });
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
