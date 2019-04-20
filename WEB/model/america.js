@@ -54,4 +54,4 @@ const americaSchema = new Schema({
   WY: Number
 });
 
-module.exports = mongoose.model("USA", americaSchema);
+module.exports = mongoose.model("words", americaSchema);
