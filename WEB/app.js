@@ -142,7 +142,6 @@ app.get("/us-states", (req, res) => {
 //Get the last item from MongoDB
 app.get("/bigdata", (req, res) => {
   Usa.find({}).then(users => {
-    console.log(users.length - 1);
     res.send([users[users.length - 1]]);
   });
 });
