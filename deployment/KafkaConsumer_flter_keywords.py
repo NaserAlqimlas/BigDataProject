@@ -125,19 +125,21 @@ if __name__ == "__main__":
 
     kvs = KafkaUtils.createDirectStream(ssc, [topic],{"metadata.broker.list": brokers})
 
-    keyword = 'good'
+    keyword = None
     def foo(x):
-        print(json.loads(x[1])[u'user'])
-        if("location" not in json.loads(x[1])[u'user']):
+        print(json.loads(x[1])[u'place'])
+        if("full_name" not in json.loads(x[1])[u'place']):
             print("No")
             return "No"
-        location = json.loads(x[1])[u'user'].get('location')
+        location = json.loads(x[1])[u'place'].get('full_name')
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(json.loads(x[1])[u'place'])
         text = json.loads(x[1])[u'text']
         #can not print, there are characters encoded wrong
         #print(location)
 
         if keyword != None:
-            if location != None and keyword in text:
+            if location != None and keyword.upper() in text.upper():
                 print(statesContext.value)
                 words = location.split(", ")
                 print(words)
