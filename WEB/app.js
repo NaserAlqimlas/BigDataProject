@@ -117,22 +117,19 @@ app.post("/choropleth", (req, res) => {
   console.log(keyword);
   // 執行 cat child_process.js 指令：
   //May not work in Heroku
-  exec(
-    "gcloud dataproc jobs submit pyspark --cluster=cluster-56f5 --region=us-west1 data_processing.py -- " +
-      keyword,
-    function(error, stdout, stderr) {
+  console.log("Start to gcloud")
+  exec("gcloud dataproc jobs submit pyspark --cluster=cluster-56f5 --region=us-west1 data_processing.py -- " + keyword, function(error, stdout, stderr) {
       if (error) {
         console.log(error);
       }
       console.info("cat child_process.js stdout: ");
-      console.log(stdout);
-      // setTimeout(function() {
-      //   res.redirect("/choropleth");
-      // }, 60000);
-      res.redirect("/choropleth");
+      //console.log(stdout);
+      setTimeout(function() {
+        res.redirect("/choropleth");
+      }, 500);
+      //res.redirect("/choropleth");
     }
   );
-  //Store this data to the mongoDB database for Spark query
 });
 
 app.get("/us-states", (req, res) => {
