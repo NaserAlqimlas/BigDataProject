@@ -4,9 +4,12 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import ast
 import json
+from pyspark.sql import SparkSession
 #import pymongo_spark
 # Important: activate pymongo_spark.
 #pymongo_spark.activate()
+
+
 
 brokers, topic = 'localhost:9092', 'test'
 print("**************************************")
@@ -125,7 +128,33 @@ if __name__ == "__main__":
 
     kvs = KafkaUtils.createDirectStream(ssc, [topic],{"metadata.broker.list": brokers})
 
-    keyword = None
+
+    with open("mongo_cfg.txt") as f:
+        content = f.readlines()
+    content = [x.strip() for x in content]
+    input_uri = content[0]
+    output_uri = content[1]
+
+    my_spark = SparkSession \
+        .builder \
+        .appName("my_spark") \
+        .config("spark.mongodb.input.uri", input_uri) \
+        .config("spark.mongodb.output.uri", output_uri) \
+        .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.11:2.3.2') \
+        .getOrCreate()
+
+    people = my_spark.createDataFrame([("JULIA", 50), ("Gandalf", 1000), ("Thorin", 195), ("Balin", 178), ("Kili", 77),
+                                       ("Dwalin", 169), ("Oin", 167), ("Gloin", 158), ("Fili", 82), ("Bombur", 22)],
+                                      ["name", "age"])
+
+    people.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
+
+    df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
+    df.select('*').where(col("name") == "JULIA").show()
+    # df = my_spark.read.format('com.mongodb.spark.sql.DefaultSource').load()
+    print("mongodb read")
+    print(df)
+
     def foo(x):
         print(json.loads(x[1])[u'place'])
         if("full_name" not in json.loads(x[1])[u'place']):
@@ -138,42 +167,23 @@ if __name__ == "__main__":
         #can not print, there are characters encoded wrong
         #print(location)
 
-        if keyword != None:
-            if location != None and keyword.upper() in text.upper():
-                print(statesContext.value)
-                words = location.split(", ")
-                print(words)
-                for w in words:
-                    if w.upper() in statesContext.value.keys():
-                        print(w.upper())
-                        return w.upper()
-                    w2 = w.split(" ")
-                    for e in w2:
-                        if e in abbrevContext.value.keys():
-                            print(abbrevContext.value[e])
-                            return abbrevContext.value[e]
-                print("No")
-                return "No"
+        if location != None:
+            print(statesContext.value)
+            words = location.split(", ")
+            print(words)
+            for w in words:
+                if w.upper() in statesContext.value.keys():
+                    print(w.upper())
+                    return w.upper()
+                w2 = w.split(" ")
+                for e in w2:
+                    if e in abbrevContext.value.keys():
+                        print(abbrevContext.value[e])
+                        return abbrevContext.value[e]
             print("No")
             return "No"
-        else:
-            if location != None:
-                print(statesContext.value)
-                words = location.split(", ")
-                print(words)
-                for w in words:
-                    if w.upper() in statesContext.value.keys():
-                        print(w.upper())
-                        return w.upper()
-                    w2 = w.split(" ")
-                    for e in w2:
-                        if e in abbrevContext.value.keys():
-                            print(abbrevContext.value[e])
-                            return abbrevContext.value[e]
-                print("No")
-                return "No"
-            print("No")
-            return "No"
+        print("No")
+        return "No"
 
 
     lines = kvs.map(lambda x: foo(x))
