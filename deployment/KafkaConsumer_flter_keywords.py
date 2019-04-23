@@ -134,6 +134,8 @@ if __name__ == "__main__":
     cf.read("mongo_conf.conf")
     db_uri=cf.get("db", "db_host")
     port = cf.getint("db", "db_port")
+    db_name = cf.get("db","db_name")
+    db_collection = cf.get("db","db_collection")
 
     # with open("mongo_cfg.rtf") as f:
     #     content = f.readlines()
@@ -153,10 +155,11 @@ if __name__ == "__main__":
 
     # client = pymongo.MongoClient("mongodb://35.239.176.168", 27017)
     client = pymongo.MongoClient(db_uri, port)
-    db = client["tweets"]
-    coll = db['statecounts']
-    keyword="sflse"
-    coll.update_one({'word': keyword}, {"$set": states}, upsert=True)
+
+    db = client[db_name]
+    coll = db[db_collection]
+    statecounts="statecounts"
+
 
 
     # df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
@@ -205,6 +208,7 @@ if __name__ == "__main__":
         .map(lambda word: (word, 1)) \
         .reduceByKey(lambda a, b: a+b)
 
+    coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
 
     print('*****************')
     counts.pprint()
