@@ -6,7 +6,7 @@ import ast
 import json
 from pyspark.sql import SparkSession
 import pymongo
-
+import ConfigParser
 #import pymongo_spark
 # Important: activate pymongo_spark.
 #pymongo_spark.activate()
@@ -130,38 +130,40 @@ if __name__ == "__main__":
 
     kvs = KafkaUtils.createDirectStream(ssc, [topic],{"metadata.broker.list": brokers})
 
+    cf = ConfigParser.ConfigParser()
+    cf.read("mongo_conf.conf")
+    db_uri=cf.get("db", "db_host")
+    port = cf.getint("db", "db_port")
 
-    with open("mongo_cfg.txt") as f:
-        content = f.readlines()
-    content = [x.strip() for x in content]
-    input_uri = content[0]
-    output_uri = content[1]
+    # with open("mongo_cfg.rtf") as f:
+    #     content = f.readlines()
+    # content = [x.strip() for x in content]
+    # # input_uri = content[0]
+    # # output_uri = content[1]
+    # db_uri = content[0]
+    #port=int(content[1])
 
-    my_spark = SparkSession \
-        .builder \
-        .appName("my_spark") \
-        .config("spark.mongodb.input.uri", input_uri) \
-        .config("spark.mongodb.output.uri", output_uri) \
-        .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.11:2.3.2') \
-        .getOrCreate()
+    # my_spark = SparkSession \
+    #     .builder \
+    #     .appName("my_spark") \
+    #     .config("spark.mongodb.input.uri", input_uri) \
+    #     .config("spark.mongodb.output.uri", output_uri) \
+    #     .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.11:2.3.2') \
+    #     .getOrCreate()
 
-    client = pymongo.MongoClient("mongodb://35.192.166.67", 27017)
+    # client = pymongo.MongoClient("mongodb://35.239.176.168", 27017)
+    client = pymongo.MongoClient(db_uri, port)
     db = client["tweets"]
     coll = db['statecounts']
     keyword="sflse"
     coll.update_one({'word': keyword}, {"$set": states}, upsert=True)
 
-    people = my_spark.createDataFrame([("JULIA", 50), ("Gandalf", 1000), ("Thorin", 195), ("Balin", 178), ("Kili", 77),
-                                       ("Dwalin", 169), ("Oin", 167), ("Gloin", 158), ("Fili", 82), ("Bombur", 22)],
-                                      ["name", "age"])
 
-    people.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
-
-    df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-    df.select('*').where(col("name") == "JULIA").show()
+    # df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
+    # df.select('*').where(col("name") == "JULIA").show()
     #df = my_spark.read.format('com.mongodb.spark.sql.DefaultSource').load()
-    print("mongodb read")
-    print(df)
+    # print("mongodb read")
+    # print(df)
 
     def foo(x):
         print(json.loads(x[1])[u'place'])
