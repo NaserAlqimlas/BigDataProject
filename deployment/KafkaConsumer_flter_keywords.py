@@ -5,6 +5,8 @@ from pyspark.streaming.kafka import KafkaUtils
 import ast
 import json
 from pyspark.sql import SparkSession
+import pymongo
+
 #import pymongo_spark
 # Important: activate pymongo_spark.
 #pymongo_spark.activate()
@@ -143,6 +145,12 @@ if __name__ == "__main__":
         .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.11:2.3.2') \
         .getOrCreate()
 
+    client = pymongo.MongoClient("mongodb://35.192.166.67", 27017)
+    db = client["tweets"]
+    coll = db['statecounts']
+    keyword="sflse"
+    coll.update_one({'word': keyword}, {"$set": states}, upsert=True)
+
     people = my_spark.createDataFrame([("JULIA", 50), ("Gandalf", 1000), ("Thorin", 195), ("Balin", 178), ("Kili", 77),
                                        ("Dwalin", 169), ("Oin", 167), ("Gloin", 158), ("Fili", 82), ("Bombur", 22)],
                                       ["name", "age"])
@@ -151,7 +159,7 @@ if __name__ == "__main__":
 
     df = my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
     df.select('*').where(col("name") == "JULIA").show()
-    # df = my_spark.read.format('com.mongodb.spark.sql.DefaultSource').load()
+    #df = my_spark.read.format('com.mongodb.spark.sql.DefaultSource').load()
     print("mongodb read")
     print(df)
 
