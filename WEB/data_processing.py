@@ -5,7 +5,7 @@ import json
 import copy
 from pyspark.sql.functions import lower, col
 from pyspark import SparkContext
-import pyspark.sql 
+import pyspark.sql
 from pyspark.sql.functions import explode
 import sys
 
@@ -30,6 +30,7 @@ my_spark = SparkSession \
 '''
 
 if __name__ == "__main__":
+    print("Hello World")
 
     #spark = SparkSession.builder.appName("test").getOrCreate()
 
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     #count = tweets_with_words.count()
     # Tokens = unionDF.select("trump").collect();
     # tweets_with_words = unionDF.filter(unionDF.text[keyword])
-    
+
     #new_rdd = rdd.filter(lambda x: x in Tokens)
     '''
     full_name = "county, State"
@@ -208,15 +209,3 @@ if __name__ == "__main__":
     coll = db['words']
     coll.update_one({'word': keyword}, {"$set": states}, upsert=True)
     #print(states)
-
-        
-
-
-
-
-
-
-
-
-
-
