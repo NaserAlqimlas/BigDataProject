@@ -4,12 +4,18 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import ast
 import json
+from pyspark.sql import SparkSession
+import pymongo
+import ConfigParser
 #import pymongo_spark
 # Important: activate pymongo_spark.
 #pymongo_spark.activate()
 
+
+
 brokers, topic = 'localhost:9092', 'test'
 print("**************************************")
+
 if __name__ == "__main__":
     states = {
         'AK': 0,
@@ -116,6 +122,7 @@ if __name__ == "__main__":
     'Wisconsin': 'WI',
     'Wyoming': 'WY',
 }
+
     sc = SparkContext(appName="PythonStreamingDirectKafkaWordCount")
     sc.setLogLevel("ERROR")
     ssc = StreamingContext(sc, 5)
@@ -125,19 +132,29 @@ if __name__ == "__main__":
 
     kvs = KafkaUtils.createDirectStream(ssc, [topic],{"metadata.broker.list": brokers})
 
+    cf = ConfigParser.ConfigParser()
+    cf.read("mongo_conf.conf")
+    db_uri=cf.get("db", "db_host")
+    port = cf.getint("db", "db_port")
+    db_name = cf.get("db","db_name")
+    db_collection = cf.get("db","db_collection")
+
     def foo(x):
-        print(json.loads(x[1])[u'user'])
-        if("location" not in json.loads(x[1])[u'user']):
+        #print(json.loads(x[1])[u'place'])
+        if("full_name" not in json.loads(x[1])[u'place']):
             print("No")
             return "No"
-        location = json.loads(x[1])[u'user'].get('location')
+        location = json.loads(x[1])[u'place'].get('full_name')
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        #print(json.loads(x[1])[u'place'])
+        text = json.loads(x[1])[u'text']
         #can not print, there are characters encoded wrong
         #print(location)
 
         if location != None:
-            print(statesContext.value)
+            #print(statesContext.value)
             words = location.split(", ")
-            print(words)
+            #print(words)
             for w in words:
                 if w.upper() in statesContext.value.keys():
                     print(w.upper())
@@ -162,10 +179,20 @@ if __name__ == "__main__":
         .map(lambda word: (word, 1)) \
         .reduceByKey(lambda a, b: a+b)
 
+    def sendRecord(tup):
+        word   = tup[0]
+        amount = tup[1]
+
+        client = pymongo.MongoClient(db_uri, port)
+        db = client[db_name]
+        coll = db[db_collection]
+        coll.update({"_id": word}, {"$inc": {"count": amount} }, upsert=True)
+        client.close()
 
     print('*****************')
     counts.pprint()
     print('*****************')
+    counts.foreachRDD(lambda rdd: rdd.foreach(sendRecord))
 
     ssc.start()
     ssc.awaitTermination()
