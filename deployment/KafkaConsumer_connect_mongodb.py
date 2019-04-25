@@ -205,13 +205,6 @@ if __name__ == "__main__":
     #fliter_lines = lines.map(lambda x: filter_location(x))
 
     lines_filter = lines.filter(lambda x: x != "No")
-    def getAllStates(rdd):
-        print('@@@@@@@@@@@@@@@@@@@@@@@@')
-        # rdd.foreach(print)
-        col = rdd.collect()
-        print(col)
-        coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
-        print("@@@@@@@@@@@@"+str(states))
 
     def sendRecord(tup):
         print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
@@ -226,7 +219,7 @@ if __name__ == "__main__":
         client = pymongo.MongoClient(db_uri, port)
         db = client[db_name]
         coll = db[db_collection]
-        coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+        coll.update_one({"_id": statecounts}, {"$set": states}, upsert=True)
         client.close()
 
         print(states)
@@ -236,7 +229,6 @@ if __name__ == "__main__":
         .reduceByKey(lambda a, b: a+b)
 
     counts.foreachRDD(lambda rdd: rdd.foreach(sendRecord))
-        # .collect()
     print(counts)
 
 
