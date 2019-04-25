@@ -7,6 +7,7 @@ import json
 from pyspark.sql import SparkSession
 import pymongo
 import ConfigParser
+import json
 #import pymongo_spark
 # Important: activate pymongo_spark.
 #pymongo_spark.activate()
@@ -129,7 +130,7 @@ if __name__ == "__main__":
     abbrevContext = sc.broadcast(us_state_abbrev)
 
     kvs = KafkaUtils.createDirectStream(ssc, [topic],{"metadata.broker.list": brokers})
-
+    statesrdd = sc.parallelize(states)
     cf = ConfigParser.ConfigParser()
     cf.read("mongo_conf.conf")
     db_uri=cf.get("db", "db_host")
@@ -204,15 +205,43 @@ if __name__ == "__main__":
     #fliter_lines = lines.map(lambda x: filter_location(x))
 
     lines_filter = lines.filter(lambda x: x != "No")
+    def getAllStates(rdd):
+        print('@@@@@@@@@@@@@@@@@@@@@@@@')
+        # rdd.foreach(print)
+        col = rdd.collect()
+        print(col)
+        coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+        print("@@@@@@@@@@@@"+str(states))
+
+    def sendRecord(tup):
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        # test_db = client.get_database(db_name)
+
+        word = tup[0]
+        amount = tup[1]
+        print(word)
+        states[word]=amount
+        statejson = json.dumps(states)
+        print(statejson)
+        coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+        print(states)
+
     counts = lines_filter.flatMap(lambda line:line.split(" ")) \
         .map(lambda word: (word, 1)) \
         .reduceByKey(lambda a, b: a+b)
 
-    coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+    counts.foreachRDD(lambda rdd: rdd.foreach(sendRecord))
+        # .collect()
+    print(counts)
+
+
+
 
     print('*****************')
-    counts.pprint()
+    # counts.pprint()
     print('*****************')
+    coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+
 
     ssc.start()
     ssc.awaitTermination()
