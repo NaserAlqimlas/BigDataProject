@@ -223,7 +223,12 @@ if __name__ == "__main__":
         states[word]=amount
         statejson = json.dumps(states)
         print(statejson)
+        client = pymongo.MongoClient(db_uri, port)
+        db = client[db_name]
+        coll = db[db_collection]
         coll.update_one({'word': statecounts}, {"$set": states}, upsert=True)
+        client.close()
+
         print(states)
 
     counts = lines_filter.flatMap(lambda line:line.split(" ")) \
